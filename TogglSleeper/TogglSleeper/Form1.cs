@@ -8,7 +8,6 @@ namespace TogglSleeper
 {
     public partial class SettingsForm : Form
     {
-
         // TODO http://stackoverflow.com/a/12657970/752142
         private TogglApi togglApi;
 
@@ -28,7 +27,7 @@ namespace TogglSleeper
 
                 this.showBallon("Toggl Sleeper", "Click on this icon and set your Toggl Access Token.");
             }
-         
+
             SystemEvents.PowerModeChanged += OnPowerChange;
             this.notifyIcon1.BalloonTipClicked += new EventHandler(notifyIcon_BalloonTipClicked);
         }
@@ -187,11 +186,11 @@ namespace TogglSleeper
         {
             if (this.checkBox1.Checked)
             {
-                TogglSleeper.toggl.Utils.RegistryStartup.EnableStartup();
+                RegistryStartup.EnableStartup();
             }
             else
             {
-                TogglSleeper.toggl.Utils.RegistryStartup.DisableStartup();
+                RegistryStartup.DisableStartup();
             }
         }
 
@@ -207,7 +206,6 @@ namespace TogglSleeper
 
         private void notifyIcon1_MouseDoubleClick(object sender, EventArgs e)
         {
-
         }
     }
 }
