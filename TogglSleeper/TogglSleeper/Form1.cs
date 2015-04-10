@@ -1,40 +1,45 @@
-﻿using Microsoft.Win32;
+﻿#region
+
+using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 using TogglSleeper.Properties;
 using TogglSleeper.toggl;
+
+#endregion
 
 namespace TogglSleeper
 {
     public partial class SettingsForm : Form
     {
         // TODO http://stackoverflow.com/a/12657970/752142
-        private TogglApi togglApi;
+        private readonly TogglApi _togglApi;
 
         public SettingsForm()
         {
             InitializeComponent();
 
-            this.togglApi = new TogglApi();
+            _togglApi = new TogglApi();
 
-            this.textBox_userToken.Text = Settings.Default.ACCESS_TOKEN;
-            this.checkBox1.Checked = Settings.Default.RUN_AT_STARTUP;
+            textBox_userToken.Text = Settings.Default.ACCESS_TOKEN;
+            checkBox1.Checked = Settings.Default.RUN_AT_STARTUP;
 
-            if (this.textBox_userToken.Text == String.Empty)
+            if (textBox_userToken.Text == String.Empty)
             {
-                this.button_testConnection.Enabled = false;
-                this.button3.Enabled = false;
+                button_testConnection.Enabled = false;
+                button3.Enabled = false;
 
-                this.showBallon("Toggl Sleeper", "Click on this icon and set your Toggl Access Token.");
+                ShowBallon("Toggl Sleeper", "Click on this icon and set your Toggl Access Token.");
             }
 
             SystemEvents.PowerModeChanged += OnPowerChange;
-            this.notifyIcon1.BalloonTipClicked += new EventHandler(notifyIcon_BalloonTipClicked);
+            notifyIcon1.BalloonTipClicked += notifyIcon_BalloonTipClicked;
         }
 
         private void notifyIcon_BalloonTipClicked(object sender, EventArgs e)
         {
-            this.restoreFormFromTray();
+            RestoreFormFromTray();
         }
 
         private void OnPowerChange(object sender, PowerModeChangedEventArgs e)
@@ -42,7 +47,7 @@ namespace TogglSleeper
             switch (e.Mode)
             {
                 case PowerModes.Suspend:
-                    this.stopRunningTask();
+                    StopRunningTask();
                     break;
 
                 default:
@@ -51,80 +56,80 @@ namespace TogglSleeper
             }
         }
 
-        private void stopRunningTask()
+        private void StopRunningTask()
         {
             try
             {
-                int taskId = this.togglApi.GetRunningTaskId();
-                this.togglApi.StopRunningTask(taskId);
+                int taskId = _togglApi.GetRunningTaskId();
+                _togglApi.StopRunningTask(taskId);
             }
             catch (NoRunningTaskException)
             {
-                System.Diagnostics.Debug.WriteLine("There is no running task.");
+                Debug.WriteLine("There is no running task.");
             }
         }
 
         private void button_testConnection_Click(object sender, EventArgs e)
         {
-            this.textBox_userToken.ReadOnly = true;
+            textBox_userToken.ReadOnly = true;
 
             try
             {
-                String fullName = this.togglApi.GetMe();
+                String fullName = _togglApi.GetMe();
 
                 MessageBox.Show("Hi " + fullName,
-                                "Authorized",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Information);
+                    "Authorized",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
 
-                this.toolStripStatusLabel1.Text = "Access token is OK";
+                toolStripStatusLabel1.Text = "Access token is OK";
             }
             catch (ConnectionFailedException)
             {
                 MessageBox.Show("Cannot connect to Toggl or given access token is not valid",
-                                "Authorization / connection problem",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Error);
+                    "Authorization / connection problem",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
 
-                this.toolStripStatusLabel1.Text = "Invalid Access token";
+                toolStripStatusLabel1.Text = "Invalid Access token";
             }
 
-            this.textBox_userToken.ReadOnly = false;
+            textBox_userToken.ReadOnly = false;
         }
 
         private void textBox_userToken_TextChanged(object sender, EventArgs e)
         {
-            if (this.textBox_userToken.Text != String.Empty)
+            if (textBox_userToken.Text != String.Empty)
             {
-                this.button_testConnection.Enabled = true;
-                this.button3.Enabled = true;
+                button_testConnection.Enabled = true;
+                button3.Enabled = true;
 
-                this.togglApi.ChangeToken(this.textBox_userToken.Text);
+                _togglApi.ChangeToken(textBox_userToken.Text);
             }
             else
             {
-                this.button_testConnection.Enabled = false;
-                this.button3.Enabled = false;
+                button_testConnection.Enabled = false;
+                button3.Enabled = false;
             }
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            this.stopRunningTask();
+            StopRunningTask();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            this.togglApi.StopRunningTask(Int32.Parse(this.textBox1.Text));
+            _togglApi.StopRunningTask(Int32.Parse(textBox1.Text));
         }
 
-        private void showBallon(string title, string text)
+        private void ShowBallon(string title, string text)
         {
-            this.notifyIcon1.BalloonTipTitle = title;
-            this.notifyIcon1.BalloonTipText = text;
+            notifyIcon1.BalloonTipTitle = title;
+            notifyIcon1.BalloonTipText = text;
             notifyIcon1.BalloonTipIcon = ToolTipIcon.Warning;
-            this.notifyIcon1.ShowBalloonTip(Settings.Default.BALLOON_TIMEOUT);
-            this.notifyIcon1.Visible = true;
+            notifyIcon1.ShowBalloonTip(Settings.Default.BALLOON_TIMEOUT);
+            notifyIcon1.Visible = true;
         }
 
         private void SettingsForm_Resize(object sender, EventArgs e)
@@ -134,57 +139,44 @@ namespace TogglSleeper
                 return;
             }
 
-            this.minimizeFormToTray();
+            MinimizeFormToTray();
         }
 
-        private void minimizeFormToTray()
+        private void MinimizeFormToTray()
         {
             WindowState = FormWindowState.Minimized;
-            this.Hide();
-            this.Visible = false;
-            this.ShowInTaskbar = false;
+            Hide();
+            Visible = false;
+            ShowInTaskbar = false;
 
-            this.notifyIcon1.Visible = true;
+            notifyIcon1.Visible = true;
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            this.restoreFormFromTray();
+            RestoreFormFromTray();
         }
 
-        private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
+        private void RestoreFormFromTray()
         {
-            switch (e.Button)
-            {
-                case MouseButtons.Left:
-                    if (WindowState == FormWindowState.Minimized)
-                    {
-                        this.restoreFormFromTray();
-                    }
-                    break;
-            }
-        }
+            Visible = true;
+            Show();
+            WindowState = FormWindowState.Normal;
 
-        private void restoreFormFromTray()
-        {
-            this.Visible = true;
-            this.Show();
-            this.WindowState = FormWindowState.Normal;
+            Focus();
 
-            this.Focus();
-
-            this.ShowInTaskbar = true;
-            this.notifyIcon1.Visible = false;
+            ShowInTaskbar = true;
+            notifyIcon1.Visible = false;
         }
 
         private void SettingsForm_Load(object sender, EventArgs e)
         {
-            this.minimizeFormToTray();
+            MinimizeFormToTray();
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
-            if (this.checkBox1.Checked)
+            if (checkBox1.Checked)
             {
                 RegistryStartup.EnableStartup();
             }
@@ -196,12 +188,12 @@ namespace TogglSleeper
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Settings.Default.ACCESS_TOKEN = this.textBox_userToken.Text;
-            Settings.Default.RUN_AT_STARTUP = this.checkBox1.Checked;
+            Settings.Default.ACCESS_TOKEN = textBox_userToken.Text;
+            Settings.Default.RUN_AT_STARTUP = checkBox1.Checked;
 
-            Properties.Settings.Default.Save();
+            Settings.Default.Save();
 
-            this.toolStripStatusLabel1.Text = "Settings saved";
+            toolStripStatusLabel1.Text = "Settings saved";
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, EventArgs e)
