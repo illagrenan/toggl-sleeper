@@ -8,7 +8,7 @@ namespace TogglSleeper.toggl
 {
     internal class TogglApi
     {
-        private String userToken;
+        private String _userToken;
 
         public String GetMe()
         {
@@ -27,7 +27,7 @@ namespace TogglSleeper.toggl
 
         public JObject DoRequest(String url, String method)
         {
-            string ApiToken = userToken;
+            string ApiToken = _userToken;
             string userpass = ApiToken + ":api_token";
             string userpassB64 = Convert.ToBase64String(Encoding.Default.GetBytes(userpass.Trim()));
             string authHeader = "Basic " + userpassB64;
@@ -99,7 +99,7 @@ namespace TogglSleeper.toggl
 
         internal void ChangeToken(string newToken)
         {
-            this.userToken = newToken;
+            this._userToken = newToken;
         }
     }
 }

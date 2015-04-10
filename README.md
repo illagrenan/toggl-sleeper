@@ -1,8 +1,12 @@
 # TogglSleeper #
 
+![](misc/process.png)
+
+Automatically stop running task on Toggl when PC goes to sleep.
+
 ## Installation ##
 
-TODO
+**[:arrow_down: Download `setup.exe` for Windows](https://github.com/illagrenan/toggl-sleeper/raw/master/clickonce/setup.exe "Setup.exe download")**  [416 KB]
 
 ## License ##
 
