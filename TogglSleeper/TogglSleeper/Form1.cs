@@ -113,16 +113,6 @@ namespace TogglSleeper
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            StopRunningTask();
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            _togglApi.StopRunningTask(Int32.Parse(textBox1.Text));
-        }
-
         private void ShowBallon(string title, string text)
         {
             notifyIcon1.BalloonTipTitle = title;
